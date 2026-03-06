@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EventHorizon</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0a0a0f;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    #canvas {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    .phrase {
+      position: absolute;
+      white-space: nowrap;
+      pointer-events: none;
+      color: #e8e8ff;
+      font-weight: bold;
+      text-shadow: 0 0 20px rgba(160, 140, 255, 0.8), 0 0 40px rgba(100, 80, 200, 0.4);
+      will-change: transform, opacity, font-size;
+      transform-origin: center center;
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas"></div>
+
+  <script>
+    'use strict';
+
+    const canvas = document.getElementById('canvas');
+
+    // Duration of the full animation for a single phrase (milliseconds).
+    const ANIMATION_DURATION = 8000;
+
+    // Minimum font size (px) at which the phrase is considered fully collapsed.
+    const MIN_FONT_SIZE = 2;
+
+    /**
+     * Spawns a single animated phrase element on the canvas.
+     * The phrase starts large at a random viewport position and drifts
+     * toward the centre while shrinking and fading out.
+     *
+     * @param {string} text - The message text to display.
+     */
+    function spawnPhrase(text) {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      // Start font size: random between 3% and 6% of the smaller viewport dimension.
+      const minDim = Math.min(vw, vh);
+      const startSize = minDim * (0.03 + Math.random() * 0.03);
+
+      // Random starting position (centred on the element).
+      const startX = Math.random() * vw;
+      const startY = Math.random() * vh;
+
+      // Centre of the viewport (the target).
+      const cx = vw / 2;
+      const cy = vh / 2;
+
+      const el = document.createElement('span');
+      el.className = 'phrase';
+      el.textContent = text;
+      el.style.fontSize = `${startSize}px`;
+      el.style.left = '0';
+      el.style.top = '0';
+      el.style.opacity = '1';
+      // Translate so the element is centred on (startX, startY).
+      el.style.transform = `translate(${startX}px, ${startY}px) translate(-50%, -50%)`;
+
+      canvas.appendChild(el);
+
+      const startTime = performance.now();
+
+      function tick(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / ANIMATION_DURATION, 1); // 0 → 1
+
+        // Ease-in-out cubic for a natural feel.
+        const eased = t < 0.5
+          ? 4 * t * t * t
+          : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+        // Interpolate position toward centre.
+        const x = startX + (cx - startX) * eased;
+        const y = startY + (cy - startY) * eased;
+
+        // Shrink font size toward minimum.
+        const size = startSize + (MIN_FONT_SIZE - startSize) * eased;
+
+        // Fade out: stay fully opaque for the first 20 % then fade.
+        const opacity = t < 0.2 ? 1 : 1 - ((t - 0.2) / 0.8);
+
+        el.style.fontSize = `${size}px`;
+        el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+        el.style.opacity = opacity;
+
+        if (t < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          el.remove();
+        }
+      }
+
+      requestAnimationFrame(tick);
+    }
+
+    // --- Server-Sent Events connection ---
+
+    function connectSSE() {
+      const es = new EventSource('/events');
+
+      es.onmessage = (event) => {
+        const text = event.data.trim();
+        if (text) spawnPhrase(text);
+      };
+
+      es.onerror = () => {
+        // EventSource automatically reconnects; just log the interruption.
+        console.warn('SSE connection interrupted – reconnecting…');
+      };
+    }
+
+    connectSSE();
+  </script>
+</body>
+</html>

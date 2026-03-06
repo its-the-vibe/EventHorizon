@@ -27,6 +27,12 @@ go.work.sum
 # env file
 .env
 
+# real config file (use config.example.yaml as the template)
+config.yaml
+
+# compiled binary
+eventhorizon
+
 # Editor/IDE
 # .idea/
 # .vscode/

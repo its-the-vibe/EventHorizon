@@ -1,0 +1,14 @@
+services:
+  eventhorizon:
+    build: .
+    image: eventhorizon:latest
+    read_only: true
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      CONFIG_PATH: /config.yaml
+    volumes:
+      - ./config.yaml:/config.yaml:ro
+    restart: unless-stopped

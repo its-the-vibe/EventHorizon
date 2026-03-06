@@ -1,0 +1,9 @@
+server:
+  host: ""       # leave empty to listen on all interfaces
+  port: 8080
+
+redis:
+  host: "localhost"
+  port: 6379
+  db: 0
+  channel: "eventhorizon"
