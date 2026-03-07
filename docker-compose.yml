@@ -1,0 +1,15 @@
+services:
+  eventhorizon:
+    build: .
+    image: eventhorizon:latest
+    read_only: true
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "${PORT:-8080}:8080"
+    environment:
+      CONFIG_PATH: /config.yaml
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    volumes:
+      - ./config.yaml:/config.yaml:ro
+    restart: on-failure:10
