@@ -11,7 +11,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/its-the-vibe/eventhorizon/internal/config"
@@ -20,11 +19,6 @@ import (
 
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-
-	// Load optional .env file (missing file is not fatal).
-	if err := godotenv.Load(); err != nil && !errors.Is(err, os.ErrNotExist) {
-		logger.Warn("could not load .env file", "err", err)
-	}
 
 	// Load application config.
 	cfgPath := "config.yaml"
