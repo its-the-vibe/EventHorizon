@@ -10,8 +10,7 @@ RUN go mod download
 COPY . .
 
 # Build a fully static binary with no CGO dependencies.
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build -trimpath -ldflags="-s -w" -o /eventhorizon .
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /eventhorizon .
 
 # ── runtime stage ─────────────────────────────────────────────────────────────
 FROM scratch
