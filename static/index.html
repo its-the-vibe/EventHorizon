@@ -23,7 +23,7 @@
 
     .phrase {
       position: absolute;
-      white-space: nowrap;
+      white-space: pre;
       pointer-events: none;
       color: #e8e8ff;
       font-weight: bold;
@@ -117,13 +117,33 @@
       requestAnimationFrame(tick);
     }
 
+    /**
+     * Returns a display-ready string for the given raw message.
+     * If the message is a valid JSON object or array it is pretty-printed;
+     * otherwise the original string is returned unchanged.
+     *
+     * @param {string} raw - The raw message string received from the server.
+     * @returns {string}
+     */
+    function formatMessage(raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed !== null && typeof parsed === 'object') {
+          return JSON.stringify(parsed, null, 2);
+        }
+      } catch (_) {
+        // Not JSON – fall through.
+      }
+      return raw;
+    }
+
     // --- Server-Sent Events connection ---
 
     function connectSSE() {
       const es = new EventSource('/events');
 
       es.onmessage = (event) => {
-        const text = event.data.trim();
+        const text = formatMessage(event.data.trim());
         if (text) spawnPhrase(text);
       };
 
