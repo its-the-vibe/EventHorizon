@@ -49,6 +49,7 @@ cp config.example.yaml config.yaml
 | `redis.port` | `6379` | Redis port |
 | `redis.db` | `0` | Redis database number |
 | `redis.channel` | `eventhorizon` | Pub/Sub channel to subscribe to |
+| `log_level` | `info` | Log verbosity: `debug`, `info`, `warn`, `error` |
 
 > **`config.yaml` is gitignored.** Commit `config.example.yaml` instead.
 
@@ -65,6 +66,7 @@ cp .env.example .env
 |----------|-------------|
 | `REDIS_PASSWORD` | Redis AUTH password (leave empty if not set) |
 | `CONFIG_PATH` | Override the config file path (default: `config.yaml`) |
+| `LOG_LEVEL` | Override the log level (`debug`, `info`, `warn`, `error`). Takes precedence over `log_level` in config file. |
 
 > **`.env` is gitignored.** Commit `.env.example` instead.
 

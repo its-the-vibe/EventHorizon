@@ -97,3 +97,36 @@ redis:
 		t.Errorf("default channel = %q, want %q", cfg.Redis.Channel, "eventhorizon")
 	}
 }
+
+func TestLoad_DefaultLogLevel(t *testing.T) {
+	path := writeYAML(t, `
+server:
+  host: ""
+redis:
+  host: "localhost"
+`)
+	cfg, err := config.Load(path)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if cfg.LogLevel != "info" {
+		t.Errorf("default log level = %q, want %q", cfg.LogLevel, "info")
+	}
+}
+
+func TestLoad_ExplicitLogLevel(t *testing.T) {
+	path := writeYAML(t, `
+server:
+  host: ""
+redis:
+  host: "localhost"
+log_level: debug
+`)
+	cfg, err := config.Load(path)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if cfg.LogLevel != "debug" {
+		t.Errorf("log level = %q, want %q", cfg.LogLevel, "debug")
+	}
+}

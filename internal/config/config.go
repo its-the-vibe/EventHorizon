@@ -9,8 +9,9 @@ import (
 
 // Config holds all application configuration.
 type Config struct {
-	Server ServerConfig `yaml:"server"`
-	Redis  RedisConfig  `yaml:"redis"`
+	Server   ServerConfig `yaml:"server"`
+	Redis    RedisConfig  `yaml:"redis"`
+	LogLevel string       `yaml:"log_level"`
 }
 
 // ServerConfig holds HTTP server configuration.
@@ -51,6 +52,9 @@ func Load(path string) (*Config, error) {
 	}
 	if cfg.Redis.Channel == "" {
 		cfg.Redis.Channel = "eventhorizon"
+	}
+	if cfg.LogLevel == "" {
+		cfg.LogLevel = "info"
 	}
 
 	return &cfg, nil
