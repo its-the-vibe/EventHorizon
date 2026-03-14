@@ -155,8 +155,8 @@ func sseHandler(logger *slog.Logger, h *hub.Hub) http.HandlerFunc {
 		client := h.Subscribe()
 		defer h.Unsubscribe(client)
 
-		logger.Debug("SSE client connected", "remote", r.RemoteAddr)
-		defer logger.Debug("SSE client disconnected", "remote", r.RemoteAddr)
+		logger.Info("SSE client connected", "remote", r.RemoteAddr)
+		defer logger.Info("SSE client disconnected", "remote", r.RemoteAddr)
 
 		for {
 			select {
