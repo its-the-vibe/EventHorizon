@@ -7,3 +7,5 @@ redis:
   port: 6379
   db: 0
   channel: "eventhorizon"
+
+log_level: "info"  # DEBUG, INFO, WARN, ERROR (case-insensitive; also settable via LOG_LEVEL env var)

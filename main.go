@@ -18,6 +18,7 @@ import (
 )
 
 func main() {
+	// Bootstrap logger at INFO level; reconfigured after loading config.
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
 	// Load application config.
@@ -30,6 +31,18 @@ func main() {
 		logger.Error("failed to load config", "err", err)
 		os.Exit(1)
 	}
+
+	// Determine log level: LOG_LEVEL env var overrides the config file value.
+	logLevelStr := cfg.LogLevel
+	if v := os.Getenv("LOG_LEVEL"); v != "" {
+		logLevelStr = v
+	}
+	var level slog.Level
+	if err := level.UnmarshalText([]byte(logLevelStr)); err != nil {
+		logger.Warn("invalid log level, defaulting to INFO", "log_level", logLevelStr)
+		level = slog.LevelInfo
+	}
+	logger = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: level}))
 
 	// Build Redis client.
 	rdb := redis.NewClient(&redis.Options{
@@ -119,7 +132,7 @@ func runSubscription(ctx context.Context, logger *slog.Logger, rdb *redis.Client
 			if !ok {
 				return fmt.Errorf("redis channel %q closed", channel)
 			}
-			logger.Info("received message", "channel", msg.Channel, "payload", msg.Payload)
+			logger.Debug("received message", "channel", msg.Channel, "payload", msg.Payload)
 			h.Broadcast(msg.Payload)
 		}
 	}
