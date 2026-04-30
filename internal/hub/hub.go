@@ -53,3 +53,10 @@ func (h *Hub) Broadcast(msg string) {
 		}
 	}
 }
+
+// Len returns the number of currently connected clients.
+func (h *Hub) Len() int {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	return len(h.clients)
+}

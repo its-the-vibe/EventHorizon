@@ -1,5 +1,7 @@
 # EventHorizon
 
+[![CI](https://github.com/its-the-vibe/EventHorizon/actions/workflows/ci.yaml/badge.svg)](https://github.com/its-the-vibe/EventHorizon/actions/workflows/ci.yaml)
+
 A kinetic canvas where fleeting messages converge and disappear.
 
 EventHorizon is a Go web service that listens to a Redis Pub/Sub channel and
@@ -90,6 +92,25 @@ open http://localhost:8080
 
 # 5. Publish a test message
 redis-cli publish eventhorizon "Hello, EventHorizon!"
+```
+
+---
+
+## Development
+
+Common tasks are automated via `make`:
+
+| Target | Description |
+|--------|-------------|
+| `make build` | Compile the binary (`eventhorizon`) |
+| `make test` | Run all tests with the race detector and produce `coverage.out` |
+| `make lint` | Run `go vet` across all packages |
+| `make clean` | Remove the binary and test artifacts |
+
+```bash
+make build   # compile
+make test    # test + coverage report
+make lint    # static analysis
 ```
 
 ---
