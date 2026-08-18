@@ -1,5 +1,8 @@
 # ── build stage ──────────────────────────────────────────────────────────────
-FROM golang:1.26.6-alpine AS builder
+FROM --platform=$BUILDPLATFORM golang:1.26.6-alpine AS builder
+
+ARG TARGETOS
+ARG TARGETARCH
 
 WORKDIR /src
 
@@ -10,18 +13,17 @@ RUN go mod download
 COPY . .
 
 # Build a fully static binary with no CGO dependencies.
-RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" -o /eventhorizon .
+RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldflags="-s -w" -o /eventhorizon .
 
-# ── runtime stage ─────────────────────────────────────────────────────────────
-FROM scratch
-
-# Copy TLS CA certificates so the binary can verify TLS connections (e.g. Redis TLS).
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+# ── runtime stage (distroless) ────────────────────────────────────────────────
+FROM gcr.io/distroless/static-debian13:nonroot
 
 # Copy the compiled binary and static web assets.
 COPY --from=builder /eventhorizon /eventhorizon
 COPY --from=builder /src/static /static
 
 EXPOSE 8080
+
+USER nonroot:nonroot
 
 ENTRYPOINT ["/eventhorizon"]
