@@ -18,12 +18,14 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -trimpath -ldfl
 # ── runtime stage (distroless) ────────────────────────────────────────────────
 FROM gcr.io/distroless/static-debian13:nonroot
 
+WORKDIR /app
+
 # Copy the compiled binary and static web assets.
-COPY --from=builder /eventhorizon /eventhorizon
-COPY --from=builder /src/static /static
+COPY --from=builder /eventhorizon /app/eventhorizon
+COPY --from=builder /src/static /app/static
 
 EXPOSE 8080
 
 USER nonroot:nonroot
 
-ENTRYPOINT ["/eventhorizon"]
+ENTRYPOINT ["/app/eventhorizon"]
